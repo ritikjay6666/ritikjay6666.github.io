@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vim Cheat Sheet — Basic to Advanced</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --bg-soft: #efece4;
+    --card: #ffffff;
+    --line: #e9e3d6;
+    --line-soft: #f0ebde;
+    --text: #14171e;
+    --text-2: #3a4256;
+    --muted: #7c7a72;
+    --primary: #2f6f5e;        /* Vim green */
+    --primary-soft: #d6e4dd;
+    --accent: #c97b3f;         /* Amber for highlights */
+    --accent-soft: #f3dfcd;
+    --rose: #b06367;           /* For danger/important */
+    --blue: #4a6b8a;           /* For visual mode */
+    --purple: #7564a0;         /* For commands/ex mode */
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px -2px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 40px -8px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(circle at 10% 0%, rgba(47,111,94,0.06), transparent 35%),
+      radial-gradient(circle at 90% 100%, rgba(201,123,63,0.05), transparent 35%);
+    background-attachment: fixed;
+  }
+
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+  }
+
+  /* ───────── Hero ───────── */
+  .hero {
+    margin-bottom: 56px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 20px;
+  }
+  .eyebrow::before {
+    content: ""; width: 28px; height: 1px; background: var(--primary);
+  }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+    line-height: 1.1;
+    letter-spacing: -0.012em;
+    margin-bottom: 18px;
+  }
+  h1 .accent { color: var(--primary); font-style: italic; }
+  .lede {
+    font-size: 17px;
+    color: var(--text-2);
+    max-width: 720px;
+    line-height: 1.6;
+  }
+
+  /* ───────── Legend ───────── */
+  .legend {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin: 36px 0 48px;
+    box-shadow: var(--shadow-sm);
+  }
+  .legend h2 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: 1.05rem;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+  .legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px 20px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    color: var(--text-2);
+  }
+  .legend-item code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--bg-soft);
+    padding: 2px 7px;
+    border-radius: 5px;
+    color: var(--text);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .legend-item .desc { color: var(--muted); }
+  .mode-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .mp-normal   { background: #e0efe7; color: #1e5a48; }
+  .mp-insert   { background: var(--accent-soft); color: #8a4f23; }
+  .mp-visual   { background: #dbe3f0; color: #2d4a6a; }
+  .mp-command  { background: #e6dff0; color: #563f7c; }
+  .mp-pending  { background: var(--bg-soft); color: var(--muted); }
+
+  /* ───────── Levels ───────── */
+  .level {
+    margin-top: 64px;
+    border-radius: 22px;
+    padding: 36px 36px 40px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .level::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    opacity: 0.85;
+  }
+  .level-1::before { background: linear-gradient(90deg, #4a9d7c, #7fc0a3); }
+  .level-2::before { background: linear-gradient(90deg, #c98a4a, #d8a674); }
+  .level-3::before { background: linear-gradient(90deg, #8e5b9e, #ad7eb8); }
+
+  .level-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .level-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--bg-soft);
+    color: var(--text-2);
+    margin-bottom: 10px;
+  }
+  .level-1 .level-tag { background: #e0efe7; color: #1e5a48; }
+  .level-2 .level-tag { background: var(--accent-soft); color: #8a4f23; }
+  .level-3 .level-tag { background: #e6dff0; color: #563f7c; }
+
+  .level h2 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: 2.1rem;
+    line-height: 1.15;
+    color: var(--text);
+    letter-spacing: -0.005em;
+  }
+  .level h2 .num { color: var(--primary); }
+  .level-2 h2 .num { color: #b0692d; }
+  .level-3 h2 .num { color: #7564a0; }
+  .level h2 + .level-desc {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .expand-toggle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--bg-soft);
+    border: none;
+    color: var(--text-2);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .expand-toggle:hover { background: var(--line); color: var(--text); }
+
+  /* ───────── Categories ───────── */
+  .cats {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-top: 28px;
+  }
+  .cat {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fdfcf8;
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+  .cat:hover {
+    border-color: var(--primary-soft);
+    box-shadow: var(--shadow-md);
+  }
+  .cat-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    background: linear-gradient(180deg, transparent, rgba(47,111,94,0.02));
+  }
+  .cat-icon {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .level-2 .cat-icon { background: var(--accent-soft); color: #8a4f23; }
+  .level-3 .cat-icon { background: #e6dff0; color: #7564a0; }
+  .cat-info { flex: 1; min-width: 0; }
+  .cat-name {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: 1.15rem;
+    line-height: 1.2;
+    color: var(--text);
+  }
+  .cat-summary {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .cat-cmd-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    padding: 3px 8px;
+    background: var(--bg);
+    border-radius: 999px;
+  }
+  .cat-chev {
+    transition: transform 0.25s ease;
+    color: var(--muted);
+  }
+  .cat.open .cat-chev { transform: rotate(180deg); }
+  .cat-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+  .cat.open .cat-body { max-height: 30000px; }
+  .cat-content {
+    padding: 6px 20px 22px;
+    border-top: 1px dashed var(--line);
+  }
+
+  /* ───────── Commands ───────── */
+  .cmd-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    font-size: 14px;
+  }
+  .cmd-table thead th {
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .cmd-table tbody tr {
+    border-bottom: 1px solid var(--line-soft);
+    transition: background 0.15s;
+  }
+  .cmd-table tbody tr:hover { background: rgba(47,111,94,0.025); }
+  .cmd-table tbody tr:last-child { border-bottom: none; }
+  .cmd-table td {
+    padding: 10px 12px;
+    vertical-align: top;
+  }
+  .cmd-table td.keystrokes {
+    width: 220px;
+  }
+  .cmd-table td.example {
+    width: 230px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--muted);
+    word-break: break-word;
+  }
+  .kbd {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    font-weight: 500;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin: 1px 1px;
+    color: var(--text);
+    white-space: nowrap;
+    line-height: 1.5;
+  }
+  .kbd.seq { margin-right: 8px; }
+  .kbd-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    margin: 1px 2px 1px 0;
+  }
+  .cmd-desc {
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+  .cmd-desc strong { color: var(--text); font-weight: 600; }
+
+  .sub-section {
+    margin-top: 18px;
+    margin-bottom: 8px;
+  }
+  .sub-section h4 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed var(--line);
+    margin-bottom: 6px;
+  }
+  .level-2 .sub-section h4 { color: #b0692d; }
+  .level-3 .sub-section h4 { color: #7564a0; }
+
+  .note {
+    background: var(--bg-soft);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    font-size: 13.5px;
+    color: var(--text-2);
+    margin: 14px 0 4px;
+  }
+  .note strong { color: var(--accent); }
+
+  .code-block {
+    background: #1f2330;
+    color: #e8e6e0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    overflow-x: auto;
+    margin: 12px 0;
+    line-height: 1.7;
+  }
+  .code-block .c-comment { color: #6c7494; }
+  .code-block .c-key { color: #a6e3a1; }
+  .code-block .c-val { color: #f9e2af; }
+  .code-block .c-fn { color: #89b4fa; }
+  .code-block .c-cmd { color: #cba6f7; }
+  .code-block .c-str { color: #f5c2e7; }
+
+  ul.tips {
+    list-style: none;
+    margin-top: 10px;
+  }
+  ul.tips li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 6px;
+    color: var(--text-2);
+    font-size: 14px;
+  }
+  ul.tips li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  /* ───────── Footer ───────── */
+  .footer {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .footer .kbd { font-size: 11.5px; }
+  .footer a { color: var(--primary); text-decoration: none; border-bottom: 1px dotted; }
+
+  /* ───────── Responsive ───────── */
+  @media (max-width: 720px) {
+    .wrap { padding: 32px 16px 64px; }
+    .level { padding: 24px 18px 28px; }
+    .level h2 { font-size: 1.55rem; }
+    .cmd-table td.keystrokes,
+    .cmd-table td.example { display: none; }
+    .cmd-table thead th:nth-child(2),
+    .cmd-table tbody td:nth-child(2) { display: table-cell; }
+    .cat-head { padding: 14px 16px; }
+    .cat-content { padding: 4px 14px 18px; }
+  }
+
+  /* ───────── Print ───────── */
+  @media print {
+    body { background: white; }
+    .level, .cat { box-shadow: none; }
+    .cat-body { max-height: none !important; }
+    .expand-toggle { display: none; }
+    .legend { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ───────────── HERO ───────────── -->
+  <header class="hero">
+    <div class="eyebrow">Reference · 2026</div>
+    <h1>The Vim Cheat Sheet — <span class="accent">from muscle memory to mastery</span></h1>
+    <p class="lede">
+      A structured reference built in three escalating tiers. Start at the top, work your way down —
+      every command is paired with a description, the mode it lives in, and a working example.
+      Designed for both quick lookup when you forget a key and slow reading when learning the ropes.
+    </p>
+  </header>
+
+  <!-- ───────────── LEGEND ───────────── -->
+  <section class="legend" id="legend">
+    <h2>Notation Legend</h2>
+    <div class="legend-grid">
+      <div class="legend-item"><code>{motion}</code><span class="desc">a movement (w, 3j, G, etc.)</span></div>
+      <div class="legend-item"><code>{count}</code><span class="desc">repeat a command N times</span></div>
+      <div class="legend-item"><code>&lt;CR&gt;</code><span class="desc">press Enter</span></div>
+      <div class="legend-item"><code>&lt;Esc&gt;</code><span class="desc">press Escape</span></div>
+      <div class="legend-item"><code>&lt;C-x&gt;</code><span class="desc">Ctrl + x</span></div>
+      <div class="legend-item"><code>{char}</code><span class="desc">a single character</span></div>
+      <div class="legend-item"><code>{pat}</code><span class="desc">a search pattern</span></div>
+      <div class="legend-item"><code>&lt;leader&gt;</code><span class="desc">user-defined prefix (often <code class="kbd">\</code>)</span></div>
+      <div class="legend-item"><code>"a</code><span class="desc">register "a" prefix</span></div>
+    </div>
+    <div class="legend-grid" style="margin-top: 16px;">
+      <div class="legend-item"><span class="mode-pill mp-normal">NORMAL</span><span class="desc">default mode — commands</span></div>
+      <div class="legend-item"><span class="mode-pill mp-insert">INSERT</span><span class="desc">typing text</span></div>
+      <div class="legend-item"><span class="mode-pill mp-visual">VISUAL</span><span class="desc">selection (v, V, Ctrl-v)</span></div>
+      <div class="legend-item"><span class="mode-pill mp-command">EX</span><span class="desc">command-line (:commands, /search)</span></div>
+    </div>
+  </section>
+
+  <!-- ========================================================== -->
+  <!-- LEVEL 1                                                    -->
+  <!-- ========================================================== -->
+  <section class="level level-1" id="level-1">
+    <div class="level-header">
+      <div>
+        <span class="level-tag">Part I · Beginner</span>
+        <h2><span class="num">Basic &amp; Everyday Use</span></h2>
+        <p class="level-desc">The 5% you'll use 95% of the time. Learn these first, repeat until your fingers forget you don't know them.</p>
+      </div>
+      <button class="expand-toggle" data-target="level-1">expand all</button>
+    </div>
+
+    <div class="cats">
+
+      <!-- Essential Navigation -->
+      <div class="cat open">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Essential Navigation</div>
+            <div class="cat-summary">Cursor movement, scrolling, jumping to lines</div>
+          </div>
+          <span class="cat-cmd-count">~20 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Cursor Movement</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">h</span> <span class="kbd">j</span> <span class="kbd">k</span> <span class="kbd">l</span></td><td class="cmd-desc">left / down / up / right (one char). Whole reason Vim exists — keep fingers on home row.</td><td class="example">5j ↓ 5 lines down</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">w</span> <span class="kbd">b</span></td><td class="cmd-desc">forward / back by <strong>word</strong> (stops at punctuation).</td><td class="example">dw → delete next word</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">W</span> <span class="kbd">B</span></td><td class="cmd-desc">forward / back by <strong>WORD</strong> (whitespace-delimited, ignores punctuation).</td><td class="example">3W skip 3 WORDs</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">e</span> <span class="kbd">E</span></td><td class="cmd-desc">end of word / WORD (one before the start of next).</td><td class="example">ge → prev word end</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">0</span> <span class="kbd">$</span></td><td class="cmd-desc">start of line / end of line.</td><td class="example">d$ delete to EOL</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">^</span></td><td class="cmd-desc">first non-blank character on the line.</td><td class="example">y^ yank to first char</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Scrolling &amp; Jumps</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-d&gt;</span> <span class="kbd">&lt;C-u&gt;</span></td><td class="cmd-desc">scroll down / up half a page (cursor stays put unless it falls off screen).</td><td class="example">10&lt;C-u&gt; scroll up 10</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-f&gt;</span> <span class="kbd">&lt;C-b&gt;</span></td><td class="cmd-desc">scroll forward / back a full page.</td><td class="example">&lt;C-f&gt; one page down</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">gg</span> <span class="kbd">G</span></td><td class="cmd-desc">first line / last line of file.</td><td class="example">:128 ↵ or 128G</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">H</span> <span class="kbd">M</span> <span class="kbd">L</span></td><td class="cmd-desc">move cursor to top / middle / bottom of visible screen.</td><td class="example">5H top, 5L bot</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-pending">%</span></td><td class="cmd-desc">jump to matching <code>()</code> <code>{}</code> <code>[]</code> (very useful in code).</td><td class="example">cursor on { → jumps to }</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <strong>Tip:</strong> Most movement commands take a count — <span class="kbd">5j</span> moves down 5 lines,
+            <span class="kbd">3w</span> jumps 3 words. This composability is Vim's superpower.
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- Basic Editing -->
+      <div class="cat open">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Basic Editing</div>
+            <div class="cat-summary">Insert text, delete characters and lines, undo/redo</div>
+          </div>
+          <span class="cat-cmd-count">~20 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Inserting Text</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">i</span></td><td class="cmd-desc">enter insert mode at cursor.</td><td class="example">iHello&lt;Esc&gt;</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">a</span> <span class="kbd">A</span></td><td class="cmd-desc">append after cursor / at end of line.</td><td class="example">A&lt;CR&gt;world&lt;Esc&gt;</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">I</span></td><td class="cmd-desc">insert at first non-blank of line.</td><td class="example">I//&lt;Esc&gt; comment line</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">o</span> <span class="kbd">O</span></td><td class="cmd-desc">open new line below / above; auto enters insert mode.</td><td class="example">Odef foo():&lt;Esc&gt;</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-insert">I</span> <span class="kbd">&lt;Esc&gt;</span></td><td class="cmd-desc">return to Normal mode (your best friend in insert mode).</td><td class="example">type, &lt;Esc&gt;, j. repeat</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Deleting</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">x</span></td><td class="cmd-desc">delete character under cursor (like Delete).</td><td class="example">4x delete 4 chars</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">X</span></td><td class="cmd-desc">delete character before cursor (like Backspace).</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">dd</span></td><td class="cmd-desc">delete whole line (also yanks it into register 1).</td><td class="example">3dd delete 3 lines</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">d{motion}</span></td><td class="cmd-desc">delete everything covered by motion — the core composable delete.</td><td class="example">dw, de, d$</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">D</span></td><td class="cmd-desc">delete to end of line (equivalent to d$).</td><td class="example">D$ from cursor</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">r{char}</span></td><td class="cmd-desc">replace single char (no insert mode entered).</td><td class="example">rx swap char for x</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">J</span></td><td class="cmd-desc">join current and next line with a single space.</td><td class="example">3J join 3 lines</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">cc</span></td><td class="cmd-desc">change whole line (delete + insert mode).</td><td class="example">cc reset&lt;Esc&gt;</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Undo / Redo / Repeat</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">u</span></td><td class="cmd-desc">undo last change.</td><td class="example">3u undo 3 steps</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-r&gt;</span></td><td class="cmd-desc">redo (re-applies an undone change).</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">.</span></td><td class="cmd-desc">repeat last editing command — the most under-rated key in Vim.</td><td class="example">cw + then 12. </td></tr>
+            </tbody>
+          </table>
+
+          <div class="note"><strong>The dot command (<span class="kbd">.</span>)</strong> is the single biggest leverage point in Vim.
+          Do a sensible edit once, then n. to repeat it everywhere you want it.</div>
+
+        </div></div>
+      </div>
+
+      <!-- File Operations -->
+      <div class="cat open">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">File Operations</div>
+            <div class="cat-summary">Opening, saving, quitting</div>
+          </div>
+          <span class="cat-cmd-count">~10 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Open / Save / Quit</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:e {file}</span></td><td class="cmd-desc">edit a file in current window. <span class="kbd">:e .</span> opens netrw file browser.</td><td class="example">:e ~/notes.txt</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:w</span></td><td class="cmd-desc">write (save) current buffer.</td><td class="example">:w save</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:w {name}</span></td><td class="cmd-desc">save as (a second name); keeps editing the same buffer.</td><td class="example">:w /tmp/backup.txt</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:wq</span> or <span class="kbd">ZZ</span></td><td class="cmd-desc">write &amp; quit. <span class="kbd">ZZ</span> works from Normal mode — fastest.</td><td class="example">ZZ save and leave</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:q</span> or <span class="kbd">ZQ</span></td><td class="cmd-desc">quit (only if no unsaved changes).</td><td class="example">ZQ force quit</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:q!</span></td><td class="cmd-desc">force quit, discarding changes.</td><td class="example">:q! abandon</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:qa</span></td><td class="cmd-desc">quit all windows/buffers.</td><td class="example">:qa! force all</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Switching Buffers</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:ls</span> or <span class="kbd">:buffers</span></td><td class="cmd-desc">list all loaded buffers.</td><td class="example">:ls</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:b {name}</span></td><td class="cmd-desc">switch to buffer by name (or partial name).</td><td class="example">:b notes</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:bn</span> <span class="kbd">:bp</span></td><td class="cmd-desc">go to next / previous buffer.</td><td class="example">:bn cycle forward</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:bd</span></td><td class="cmd-desc">delete (close) the current buffer.</td><td class="example">:bd wipe buffer</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <strong>Tip:</strong> From the shell: <span class="kbd">vim file.txt</span> opens, <span class="kbd">vim -O file1 file2</span> opens a vertical diff.
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- Search Fundamentals -->
+      <div class="cat open">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Search Fundamentals</div>
+            <div class="cat-summary">Finding text, repeating searches</div>
+          </div>
+          <span class="cat-cmd-count">~10 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Searching</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">/{pat}</span></td><td class="cmd-desc">search <strong>forward</strong>; press <span class="kbd">&lt;CR&gt;</span> to commit.</td><td class="example">/TODO</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">?{pat}</span></td><td class="cmd-desc">search <strong>backward</strong>.</td><td class="example">?def</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">n</span> <span class="kbd">N</span></td><td class="cmd-desc">repeat last search forward / backward.</td><td class="example">3n jump 3 matches</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">*</span> <span class="kbd">#</span></td><td class="cmd-desc">search forward / backward for the word under cursor (word-boundary match).</td><td class="example">cursor on getName → *</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">f{char}</span> <span class="kbd">F{char}</span></td><td class="cmd-desc">find next / previous occurrence of char on current line.</td><td class="example">f{ → jump to next {</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">;</span> <span class="kbd">,</span></td><td class="cmd-desc">repeat last f / F forward / backward.</td><td class="example">f( then 3; go 3 more</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <strong>Tip:</strong> Append <span class="kbd">/pattern</span> to the search prompt and you can edit it: <span class="kbd">/</span> then
+            <span class="kbd">&lt;C-u&gt;</span> clears line, <span class="kbd">&lt;up&gt;</span> recalls history.
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- Visual Mode Basics -->
+      <div class="cat open">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Visual Mode Basics</div>
+            <div class="cat-summary">Selecting text</div>
+          </div>
+          <span class="cat-cmd-count">~8 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Selecting</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">v</span></td><td class="cmd-desc">enter character-wise visual mode.</td><td class="example">v2w select 2 words</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">V</span></td><td class="cmd-desc">enter line-wise visual mode.</td><td class="example">V select whole line</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">&lt;C-v&gt;</span></td><td class="cmd-desc">enter block visual mode (column selection).</td><td class="example">see Block section</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">o</span></td><td class="cmd-desc">move cursor to the other end of selection (without re-entering mode).</td><td class="example">v2w, o, → extend back</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">gv</span></td><td class="cmd-desc">reselect last visual area.</td><td class="example">gv after re-arrange</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">y</span> <span class="kbd">d</span> <span class="kbd">c</span></td><td class="cmd-desc">yank / delete / change selection.</td><td class="example">V3j d delete 4 lines</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">&gt;</span> <span class="kbd">&lt;</span></td><td class="cmd-desc">indent / dedent selection by one shiftwidth.</td><td class="example">V3j &gt; indent 4 lines</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            Operators + motions: most Normal-mode commands combine an <strong>operator</strong> (<span class="kbd">d</span>,
+            <span class="kbd">c</span>, <span class="kbd">y</span>, <span class="kbd">&gt;</span>) and a <strong>motion</strong>.
+            E.g., <span class="kbd">d3w</span> = delete three words; <span class="kbd">y$</span> = yank to EOL.
+          </div>
+
+        </div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================== -->
+  <!-- LEVEL 2                                                    -->
+  <!-- ========================================================== -->
+  <section class="level level-2" id="level-2">
+    <div class="level-header">
+      <div>
+        <span class="level-tag">Part II · Intermediate</span>
+        <h2><span class="num">Efficient &amp; Composable Editing</span></h2>
+        <p class="level-desc">Marks, text-objects, registers, macros, the language of &substitute and split workflows.</p>
+      </div>
+      <button class="expand-toggle" data-target="level-2">expand all</button>
+    </div>
+
+    <div class="cats">
+
+      <!-- Advanced Navigation -->
+      <div class="cat">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Advanced Navigation</div>
+            <div class="cat-summary">Marks, jumps, moving by code structure</div>
+          </div>
+          <span class="cat-cmd-count">~18 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Marks</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">m{a-z}</span></td><td class="cmd-desc">set a lowercase mark in current file.</td><td class="example">ma mark "a"</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">`{a-z}</span></td><td class="cmd-desc">jump to mark's exact position (cursor column matters).</td><td class="example">`a back to mark a</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">'{a-z}</span></td><td class="cmd-desc">jump to mark's line (first non-blank).</td><td class="example">'b start of line b</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">m{A-Z}</span></td><td class="cmd-desc">set a global mark (uppercase) — works across files.</td><td class="example">mZ cross-file anchor</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:marks</span></td><td class="cmd-desc">list all marks.</td><td class="example">:marks</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">:delmarks a b c</span></td><td class="cmd-desc">delete specific marks via ex command.</td><td class="example">:delmarks a-d</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Jumps &amp; Motion History</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-o&gt;</span> <span class="kbd">&lt;C-i&gt;</span></td><td class="cmd-desc">jump backward / forward through the <em>jump list</em> (every major motion is logged).</td><td class="example">3&lt;C-o&gt; back 3 jumps</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">''</span> <span class="kbd">``</span></td><td class="cmd-desc">return to previous position (line / exact column).</td><td class="example">after yank, '' back</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:jumps</span></td><td class="cmd-desc">show the jump list.</td><td class="example">:jumps</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:changes</span></td><td class="cmd-desc">show the change list (older cursor positions tied to edits).</td><td class="example">g; older, g, newer</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Code-Structure Motions</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">%</span></td><td class="cmd-desc">jump to matching bracket <code>(){}[]</code>.</td><td class="example">d% delete inside block</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">[(</span> <span class="kbd">])</span></td><td class="cmd-desc">go to previous / next unmatched <code>(</code> / <code>)</code>.</td><td class="example">]i jump to outer func</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">[{</span> <span class="kbd">]}</span></td><td class="cmd-desc">go to previous / next unmatched <code>{</code> / <code>}</code>.</td><td class="example">]] next blank</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">]]</span> <span class="kbd">[[</span></td><td class="cmd-desc">jump forward / backward by section (paragraph / function boundary).</td><td class="example">[[ prev function</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">M</span> <span class="kbd">gM</span></td><td class="cmd-desc">jump to function start (curly-brace style) — fallback when <code>]]</code> misses.</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-]&gt;</span></td><td class="cmd-desc">jump to definition under cursor (uses tags).</td><td class="example">cursor on funcName</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-t&gt;</span></td><td class="cmd-desc">pop back from a tag jump.</td><td class="example">after &lt;C-]&gt;</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <strong>Tip:</strong> In practice, % does most bracket navigation; <code>])</code>/<code>[(</code> and <code>]]}</code>/<code>[{</code>
+            solve the "find the boundary" problem in long files where % can't.
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- Efficient Editing -->
+      <div class="cat">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Efficient Editing</div>
+            <div class="cat-summary">Registers, text-objects, macros, repeating commands</div>
+          </div>
+          <span class="cat-cmd-count">~25 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Text Objects</h4></div>
+          <p style="font-size:13.5px;color:var(--muted);margin:8px 0 4px;">
+            Text objects combine with operators — they describe <strong>what to operate on</strong>, not how much to move.
+          </p>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">iw</span> <span class="kbd">aw</span></td><td class="cmd-desc"><strong>inner word</strong> / <strong>a word</strong> (incl. trailing space).</td><td class="example">diw delete inner word</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">is</span> <span class="kbd">as</span></td><td class="cmd-desc"><strong>sentence</strong> / <strong>a sentence</strong>.</td><td class="example">3das delete 3 sents</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">ip</span> <span class="kbd">ap</span></td><td class="cmd-desc"><strong>paragraph</strong> / <strong>a paragraph</strong>.</td><td class="example">yap yank para</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">i"</span> <span class="kbd">a"</span></td><td class="cmd-desc">contents inside / including <code>"…"</code>.</td><td class="example">ci" change inside ""</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">i'</span> <span class="kbd">a'</span></td><td class="cmd-desc">single quotes.</td><td class="example">di'</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">i`</span> <span class="kbd">a`</span></td><td class="cmd-desc">backticks (templates, JSX).</td><td class="example">ci` JSX text edit</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">i(</span> <span class="kbd">a(</span> / <span class="kbd">ib</span> <span class="kbd">ab</span></td><td class="cmd-desc">round <code>(…)</code> / inside / around block.</td><td class="example">di( delete parens</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">i{</span> <span class="kbd">a{</span> / <span class="kbd">iB</span> <span class="kbd">aB</span></td><td class="cmd-desc">curly <code>{…}</code> block.</td><td class="example">yi{ yank block</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">i&lt;</span> <span class="kbd">a&lt;</span></td><td class="cmd-desc">angle <code>&lt;…&gt;</code> (tags / generics).</td><td class="example">dat delete a &lt;tag&gt;</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">it</span> <span class="kbd">at</span></td><td class="cmd-desc">HTML/XML tag (inner / whole tag block).</td><td class="example">cit change &lt;div&gt;…&lt;/&gt;</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Registers</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">"{a-z}{cmd}</span></td><td class="cmd-desc">use a named register for the next yank/delete.</td><td class="example">"ayy yank line to a</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">"{a-z}p</span></td><td class="cmd-desc">paste from named register.</td><td class="example">"ap</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">"</span></td><td class="cmd-desc">black-hole delete — gone for good (won't overwrite default reg).</td><td class="example">"_dw drop word</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">"+y</span> <span class="kbd">"+p</span></td><td class="cmd-desc">yank to / paste from system clipboard (requires <code>+clipboard</code>).</td><td class="example">gg"+yG copy whole file</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">"*</span> <span class="kbd">"*p</span></td><td class="cmd-desc">X11 selection / OS X pbcopy (X11 PRIMARY).</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">"0p</span></td><td class="cmd-desc">paste the most recent yank (unaffected by later deletes).</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">:reg</span></td><td class="cmd-desc">show contents of every register.</td><td class="example">:reg a b 0</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Macros</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">q{a-z}</span></td><td class="cmd-desc">begin recording keystrokes into register <code>a</code>.</td><td class="example">qa start</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">q</span></td><td class="cmd-desc">stop recording.</td><td class="example">q stop</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">@{a-z}</span></td><td class="cmd-desc">replay macro stored in <code>a</code>.</td><td class="example">@a replay</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">@@</span></td><td class="cmd-desc">replay the most recently executed macro.</td><td class="example">@@ once more</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:{count}@{a-z}</span></td><td class="cmd-desc">execute macro N times (ex form is reliable).</td><td class="example">:50@a repeat 50×</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-insert">I</span> <span class="kbd">&lt;C-r&gt;a</span></td><td class="cmd-desc">insert register <code>a</code> verbatim in insert mode.</td><td class="example">paste macro while typing</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Repeating &amp; Counting</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">.</span></td><td class="cmd-desc">repeat the last change (operators count). The big lever.</td><td class="example">5. repeat 5×</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">:g/pat/&amp;</span></td><td class="cmd-desc">repeat last substitute on lines matching pattern.</td><td class="example">:g/^#/&amp;</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">@:</span></td><td class="cmd-desc">repeat last ex command (great for repeated <code>:%s</code>).</td><td class="example">@:</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&amp;</span></td><td class="cmd-desc">repeat last substitute (with last flags). Faster than retyping.</td><td class="example">search then &amp;</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <strong>Tip:</strong> If a macro misbehaves, edit it with <span class="kbd">:put a</span> to inspect,
+            tweak in buffer, then <span class="kbd">0"ay$</span> to overwrite register <code>a</code>.
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- Search & Replace -->
+      <div class="cat">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M10 20H4v-6"/><path d="m20 4-7 7"/><path d="m4 20 7-7"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Search &amp; Replace</div>
+            <div class="cat-summary">Basic to complex substitution patterns</div>
+          </div>
+          <span class="cat-cmd-count">~15 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Substitution Basics</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:s/old/new/</span></td><td class="cmd-desc">replace first occurrence on current line.</td><td class="example">:s/foo/bar/</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:s/old/new/g</span></td><td class="cmd-desc">replace all occurrences on current line (<strong>g</strong>lobal flag).</td><td class="example">:s/foo/bar/g</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:%s/old/new/g</span></td><td class="cmd-desc">replace in the whole file.</td><td class="example">:%s/foo/bar/g</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:%s/old/new/gc</span></td><td class="cmd-desc">replace with <strong>c</strong>onfirm per match (<span class="kbd">y/n/a/q/?</span>).</td><td class="example">:%s/foo/bar/gc</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:'&lt;'&gt;s/old/new/g</span></td><td class="cmd-desc">replace only on last visually-selected lines.</td><td class="example">:&lt;C-u&gt;%s/…/…/g</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:5,12s/old/new/g</span></td><td class="cmd-desc">restrict substitute to lines 5-12.</td><td class="example">:,+10s/…/…/g</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Flags &amp; Specials</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">g</span> <span class="kbd">c</span> <span class="kbd">i</span> <span class="kbd">I</span> <span class="kbd">e</span></td><td class="cmd-desc"><strong>g</strong>lobal, <strong>c</strong>onfirm, <strong>i</strong>gnore case, <strong>I</strong>case-preserving, <strong>e</strong> no error on miss.</td><td class="example">:%s/foo/bar/gci</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">\\&lt; \\&gt;</span></td><td class="cmd-desc">match word boundaries (magic mode).</td><td class="example">:s/\\&lt;foo\\&gt;/bar/g</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">\\| \\( \\)</span></td><td class="cmd-desc">alternation and capturing group (magic). Backrefs are <span class="kbd">\1</span> <span class="kbd">\2</span>.</td><td class="example">:s/(foo)\\([0-9]\\)/v\\1/g</td></tr>
+              <tr><td class="mode-pill mp-command">EX</td><td class="cmd-desc">Use a different separator if the pattern contains <code>/</code>:</td><td class="example"><span class="kbd">:s#/path/#/new/path/#</span></td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:&amp;</span> or <span class="kbd">&amp;</span></td><td class="cmd-desc">repeat last substitute with same flags (does <em>not</em> pick up new pattern from search).</td><td class="example">5&amp; repeat 5×</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <strong>Tip:</strong> The <span class="kbd">/</span> in <span class="kbd">:s/...</span> is just a separator. Use
+            <span class="kbd">:s#path/#/new#</span> when your pattern contains slashes — easier on the eyes.
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- Window & Tab Management -->
+      <div class="cat">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Windows &amp; Tabs</div>
+            <div class="cat-summary">Splits, navigating between buffers</div>
+          </div>
+          <span class="cat-cmd-count">~20 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Splits</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:sp {file}</span></td><td class="cmd-desc">horizontal split (above/below), optionally with file.</td><td class="example">:sp src.go</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:vs {file}</span></td><td class="cmd-desc">vertical split (left/right).</td><td class="example">:vs main.go</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-w&gt; s</span> <span class="kbd">&lt;C-w&gt; v</span></td><td class="cmd-desc">split window from Normal — same as <code>:sp</code> / <code>:vs</code>.</td><td class="example">&lt;C-w&gt; v</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-w&gt; w</span></td><td class="cmd-desc">cycle to next window.</td><td class="example">3&lt;C-w&gt; w 3 windows over</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-w&gt; h/j/k/l</span></td><td class="cmd-desc">move focus to window in that direction.</td><td class="example">&lt;C-w&gt; l right</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-w&gt; H/J/K/L</span></td><td class="cmd-desc"><em>move</em> current window to that edge.</td><td class="example">&lt;C-w&gt; L dock right</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-w&gt; =</span></td><td class="cmd-desc">equalize window heights/widths.</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-w&gt; _</span> <span class="kbd">&lt;C-w&gt; |</span></td><td class="cmd-desc">maximize current window vertically / horizontally.</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-w&gt; r</span> <span class="kbd">&lt;C-w&gt; x</span></td><td class="cmd-desc">rotate / swap windows.</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-w&gt; q</span> or <span class="kbd">&lt;C-w&gt; c</span></td><td class="cmd-desc">close current window.</td><td class="example">—</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Tabs</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:tabnew {file}</span></td><td class="cmd-desc">open a new tab page with file.</td><td class="example">:tabnew README.md</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:tabe {file}</span></td><td class="cmd-desc">tab edit — same as above.</td><td class="example">:tabe src.go</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">gt</span> <span class="kbd">gT</span></td><td class="cmd-desc">go to next / previous tab.</td><td class="example">3gt jump 3 tabs</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">:{n}gt</span></td><td class="cmd-desc">go to tab number N (1-indexed).</td><td class="example">:2gt</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:tabm {N}</span></td><td class="cmd-desc">move current tab to position N.</td><td class="example">:tabm 0 first</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:tabs</span></td><td class="cmd-desc">list all tabs and their windows.</td><td class="example">:tabs</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-w&gt; T</span></td><td class="cmd-desc">move current window to a new tab.</td><td class="example">—</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <strong>Splits vs. Tabs:</strong> Splits are usually better for simultaneously visible files (code + tests).
+            Tabs are good for distinct <em>workspaces</em> — one for each project / context.
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- Visual Mode Operations -->
+      <div class="cat">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Visual Mode Operations</div>
+            <div class="cat-summary">Block selection, columnar edits, indenting</div>
+          </div>
+          <span class="cat-cmd-count">~12 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Block Visual Mode (column editing)</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">&lt;C-v&gt;</span></td><td class="cmd-desc">enter block visual (rectangular) mode.</td><td class="example">&lt;C-v&gt;3j 4 columns</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">I{text}&lt;Esc&gt;</span></td><td class="cmd-desc"><strong>insert</strong> text at left edge of every selected row (types on all lines after &lt;Esc&gt;).</td><td class="example">add // comment</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">A{text}&lt;Esc&gt;</span></td><td class="cmd-desc"><strong>append</strong> text at right edge.</td><td class="example">add ; to each line</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">$</span></td><td class="cmd-desc">extend block to end of line — even ragged ones.</td><td class="example">column to EOL</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">c</span> <span class="kbd">C</span></td><td class="cmd-desc">change block (insert uniform replacement).</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">r{char}</span></td><td class="cmd-desc">replace each char in block with one char (no insert mode).</td><td class="example">r= make all =</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-visual">V</span> <span class="kbd">x</span> or <span class="kbd">d</span></td><td class="cmd-desc">cut a rectangular block (leaves a hole on shorter lines).</td><td class="example">—</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <strong>Power move:</strong> To prepend <code>// </code> to 50 lines of code, position on the first
+            character, <span class="kbd">&lt;C-v&gt;49j</span> to make a tall column, then <span class="kbd">I</span>
+            <span class="kbd">// </span> <span class="kbd">&lt;Esc&gt;</span>. All 50 lines get commented in one keystroke cluster.
+          </div>
+
+          <div class="sub-section"><h4>Reselecting &amp; Restoring</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">gv</span></td><td class="cmd-desc">reselect last visual selection (very useful after re-orienting).</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">gvw</span></td><td class="cmd-desc">reselect and visually re-select last word (helpful in visual mode motion).</td><td class="example">—</td></tr>
+            </tbody>
+          </table>
+
+        </div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================== -->
+  <!-- LEVEL 3                                                    -->
+  <!-- ========================================================== -->
+  <section class="level level-3" id="level-3">
+    <div class="level-header">
+      <div>
+        <span class="level-tag">Part III · Advanced</span>
+        <h2><span class="num">Customization &amp; Mastery</span></h2>
+        <p class="level-desc">Configuration, regex mastery, plugin ecosystems, scripting, professional workflows.</p>
+      </div>
+      <button class="expand-toggle" data-target="level-3">expand all</button>
+    </div>
+
+    <div class="cats">
+
+      <!-- Custom Configuration -->
+      <div class="cat">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Custom Configuration</div>
+            <div class="cat-summary">vimrc essentials, mappings, abbreviations</div>
+          </div>
+          <span class="cat-cmd-count">~30 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Essential <code>:set</code> Options</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:set {opt}?</span></td><td class="cmd-desc">inspect current value of an option.</td><td class="example">:set tabstop?</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:set {opt}</span> / <span class="kbd">:set no{opt}</span></td><td class="cmd-desc">enable / disable option.</td><td class="example">:set number</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:set {opt}={val}</span></td><td class="cmd-desc">set option to a value.</td><td class="example">:set tabstop=4</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>The Must-Have <code>vimrc</code> Building Blocks</h4></div>
+          <div class="code-block"><span class="c-comment">" ── ~/.vimrc ──────────────────────────────────────────</span>
+<span class="c-key">syntax</span> <span class="c-fn">on</span>                   <span class="c-comment">" enable syntax highlighting</span>
+<span class="c-key">set</span> <span class="c-key">number</span>                  <span class="c-comment">" show line numbers</span>
+<span class="c-key">set</span> <span class="c-key">relativenumber</span>           <span class="c-comment">" also show distance from cursor line</span>
+<span class="c-key">set</span> <span class="c-key">tabstop</span>=<span class="c-val">4</span>              <span class="c-comment">" visual width of a tab</span>
+<span class="c-key">set</span> <span class="c-key">shiftwidth</span>=<span class="c-val">4</span>           <span class="c-comment">" indent width for &gt; and &lt;</span>
+<span class="c-key">set</span> <span class="c-key">expandtab</span>                <span class="c-comment">" insert spaces instead of tabs</span>
+<span class="c-key">set</span> <span class="c-key">autoindent</span>               <span class="c-comment">" copy indent from previous line</span>
+<span class="c-key">set</span> <span class="c-key">smartindent</span>              <span class="c-comment">" smarter C-style indenting</span>
+<span class="c-key">set</span> <span class="c-key">hlsearch</span>                <span class="c-comment">" highlight all matches</span>
+<span class="c-key">set</span> <span class="c-key">incsearch</span>               <span class="c-comment">" incremental as you type</span>
+<span class="c-key">set</span> <span class="c-key">ignorecase</span>              <span class="c-comment">" case-insensitive search</span>
+<span class="c-key">set</span> <span class="c-key">smartcase</span>               <span class="c-comment">" case-sensitive if any caps in pattern</span>
+<span class="c-key">set</span> <span class="c-key">cursorline</span>              <span class="c-comment">" highlight current line</span>
+<span class="c-key">set</span> <span class="c-key">scrolloff</span>=<span class="c-val">5</span>             <span class="c-comment">" 5 lines of context above/below cursor</span>
+<span class="c-key">set</span> <span class="c-key">undofile</span>                <span class="c-comment">" persistent undo across sessions</span>
+<span class="c-key">set</span> <span class="c-key">undodir</span>=<span class="c-cmd">~/.vim/undodir</span>   <span class="c-comment">" where to store undo history</span>
+<span class="c-key">filetype</span> <span class="c-fn">plugin</span> indent <span class="c-fn">on</span>   <span class="c-comment">" load filetype plugins &amp; indents</span>
+
+<span class="c-comment">" leader key — common to redefine</span>
+<span class="c-key">let</span> <span class="c-key">mapleader</span> = <span class="c-str">" "</span>          <span class="c-comment">" space as leader</span>
+
+<span class="c-comment">" see types/vim plugin/Vim runtime files for options</span>
+</div>
+
+          <div class="sub-section"><h4>Mappings</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:noremap</span></td><td class="cmd-desc">non-recursive normal-mode mapping — <strong>always prefer this over :map.</strong></td><td class="example">:noremap &lt;leader&gt;w :w&lt;CR&gt;</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:nnoremap</span> <span class="kbd">:vnoremap</span> <span class="kbd">:inoremap</span></td><td class="cmd-desc">non-recursive in normal / visual / insert modes.</td><td class="example">:inoremap jj &lt;Esc&gt;</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:nunmap</span> <span class="kbd">:vunmap</span> <span class="kbd">:iunmap</span></td><td class="cmd-desc">unmap a key sequence.</td><td class="example">:iunmap jj</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:map {lhs}</span></td><td class="cmd-desc">list mappings beginning with <code>{lhs}</code>.</td><td class="example">:map &lt;leader&gt;</td></tr>
+              <tr><td class="keystrokes"><span class="kbd">&lt;leader&gt;</span></td><td class="cmd-desc">user-defined prefix key (the <code>mapleader</code> var).</td><td class="example">&lt;leader&gt;pv project tree</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Abbreviations</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-insert">I</span> <span class="kbd">:ab {abbr} {expansion}</span></td><td class="cmd-desc">define an insert-mode abbreviation (expands when you type the trigger word).</td><td class="example">:ab addr 221B Baker Street</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-insert">I</span> <span class="kbd">:iabbrev</span></td><td class="cmd-desc">insert-mode-only abbreviation (recommended — won't trigger in normal mode).</td><td class="example">:iab sig Signature</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-insert">I</span> <span class="kbd">&lt;C-v&gt;</span></td><td class="cmd-desc">abort abbreviation expansion at this prompt.</td><td class="example">addr&lt;C-v&gt;&lt;Enter&gt;</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:ab</span></td><td class="cmd-desc">list all abbreviations.</td><td class="example">:ab</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:una {abbr}</span></td><td class="cmd-desc">remove an abbreviation.</td><td class="example">:una sig</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <strong>Best practice:</strong> Always use <span class="kbd">:nore</span> variants of map commands — they prevent accidental recursion
+            where one mapping calls another. Bonus: <span class="kbd">:noremap &lt;silent&gt;</span> suppresses the <code>:</code> echo.
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- Advanced Search & Regex -->
+      <div class="cat">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Advanced Search &amp; Regex</div>
+            <div class="cat-summary">Pattern matching, very magic mode, global commands</div>
+          </div>
+          <span class="cat-cmd-count">~20 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Magic Modes</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">\m</span></td><td class="cmd-desc">default magic — <code>.</code> <code>*</code> <code>[</code> do regex things; everything else needs <code>\</code>.</td><td class="example">/foo.*bar</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">\v</span></td><td class="cmd-desc"><strong>very magic</strong> — every special is "as you expect" (Perl-like). Recommended.</td><td class="example">/\v(foo|bar)\d+</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">\V</span></td><td class="cmd-desc">very nomagic — only <code>\</code> and <code>[</code> are special. For literal text.</td><td class="example">/\V[GET]</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">\M</span></td><td class="cmd-desc">a one-line override for default magic.</td><td class="example">/\M^\s\+</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Common Atoms (use with <code>\v</code>)</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="kbd">.</span></td><td class="cmd-desc">any character.</td><td class="example">/\v.c → 'a c', 'be', etc.</td></tr>
+              <tr><td class="keystrokes"><span class="kbd">*</span> <span class="kbd">+</span> <span class="kbd">?</span></td><td class="cmd-desc">0+, 1+, 0-or-1 repetitions.</td><td class="example">/\vd+</td></tr>
+              <tr><td class="keystrokes"><span class="kbd">{n,m}</span></td><td class="cmd-desc">between n and m repeats (in <code>\v</code>; in default use <code>\{n,m\}</code>).</td><td class="example">/\v\d{2,4}</td></tr>
+              <tr><td class="keystrokes"><span class="kbd">\d</span> <span class="kbd">\w</span> <span class="kbd">\s</span></td><td class="cmd-desc">digit, word char, whitespace.</td><td class="example">/\v\d+</td></tr>
+              <tr><td class="keystrokes"><span class="kbd">\D</span> <span class="kbd">\W</span> <span class="kbd">\S</span></td><td class="cmd-desc">negated classes.</td><td class="example">/\v\S+</td></tr>
+              <tr><td class="keystrokes"><span class="kbd">[a-z]</span> <span class="kbd">[^0-9]</span></td><td class="cmd-desc">character class / complement.</td><td class="example">/\v[a-z_]+\d*</td></tr>
+              <tr><td class="keystrokes"><span class="kbd">&lt;</span> <span class="kbd">&gt;</span></td><td class="cmd-desc">word boundaries (in <code>\v</code>).</td><td class="example">/\v&lt;func&gt;</td></tr>
+              <tr><td class="keystrokes"><span class="kbd">( )</span></td><td class="cmd-desc">group + capture (in <code>\v</code>; default needs <code>\( \)</code>).</td><td class="example">/\v(foo)\1</td></tr>
+              <tr><td class="keystrokes"><span class="kbd">|</span></td><td class="cmd-desc">alternation (in <code>\v</code>; default needs <code>\|</code>).</td><td class="example">/\vfoo|bar</td></tr>
+              <tr><td class="keystrokes"><span class="kbd">\zs</span> <span class="kbd">\ze</span></td><td class="cmd-desc">match start / end markers — set cursor position without consuming.</td><td class="example">/\vfoo\zsbar → cursor before bar</td></tr>
+              <tr><td class="keystrokes"><span class="kbd">\=</span></td><td class="cmd-desc">no-width positive lookahead.</td><td class="example">/\v\w+\=\s</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Global Commands</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:g/{pat}/{cmd}</span></td><td class="cmd-desc">run <code>{cmd}</code> on every line matching <code>{pat}</code>.</td><td class="example">:g/TODO/d</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:g!/{pat}/{cmd}</span></td><td class="cmd-desc">run on lines <em>not</em> matching (aka <code>:v</code>).</td><td class="example">:g!/keep/d drop others</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:g/{pat}/s/old/new/g</span></td><td class="cmd-desc">restrict a substitute to lines matching the pattern.</td><td class="example">:g/^/m0 reverse lines</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:argdo {cmd}</span></td><td class="cmd-desc">run <code>{cmd}</code> on every file in the argument list.</td><td class="example">:argdo %s/foo/bar/g</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:bufdo</span> <span class="kbd">:windo</span> <span class="kbd">:tabdo</span></td><td class="cmd-desc">run on every buffer / window / tab.</td><td class="example">:bufdo e</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <strong>Power pattern:</strong> <span class="kbd">:g/pattern/s/old/new/g</span> — the global command
+            turns a line-match into a scope for a substitute. You'll see this in real refactors constantly.
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- Plugin Ecosystem -->
+      <div class="cat">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Plugin Ecosystem</div>
+            <div class="cat-summary">Plugin managers and essential plugin categories</div>
+          </div>
+          <span class="cat-cmd-count">~15 refs</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Plugin Managers</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">vim-plug</span></td><td class="cmd-desc">mature, minimalist Vim plugin manager — <strong>most popular on classic Vim</strong>.</td><td class="example">Plug 'foo/bar'</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">Vundle</span></td><td class="cmd-desc">older vim-plug-style manager. Largely superseded.</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">packer.nvim</span></td><td class="cmd-desc">Neovim's plugin manager of choice for many.</td><td class="example">use 'nvim-lua/plenary.nvim'</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">lazy.nvim</span></td><td class="cmd-desc">modern Neovim plugin manager with lazy-loading defaults.</td><td class="example">spec = { 'name', ... }</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:packadd {plugin}</span></td><td class="cmd-desc">load a packaged plugin (Vim 8+ native packages).</td><td class="example">:packadd foo</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Plugin Categories to Know</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> LSP / Completion</td><td class="cmd-desc">language servers + popup menu. <strong>coc.nvim</strong>, <strong>nvim-cmp</strong>, <strong>ale</strong>.</td><td class="example">GoTo Definition → gD</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> Fuzzy finder</td><td class="cmd-desc">jump to files / lines / docs. <strong>fzf.vim</strong>, <strong>telescope.nvim</strong>.</td><td class="example">:Files, :Buffers</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> File tree</td><td class="cmd-desc">side-panel browser. <strong>NERDTree</strong>, <strong>nvim-tree</strong>.</td><td class="example">&lt;leader&gt;e toggle</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> Status line</td><td class="cmd-desc">bottom bar with mode + branch + encoding. <strong>vim-airline</strong>, <strong>lualine.nvim</strong>.</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> Git integration</td><td class="cmd-desc">diff, blame, status. <strong>vim-fugitive</strong>, <strong>gitsigns.nvim</strong>.</td><td class="example">:G diff</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> Comment toggle</td><td class="cmd-desc">toggle line / block comments. <strong>vim-commentary</strong>, <strong>nerdcommenter</strong>.</td><td class="example">gcc line, gbc block</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> Surround</td><td class="cmd-desc">change/delete/add surrounding quotes/brackets/tags. <strong>vim-surround</strong>.</td><td class="example">ysiw" then cs"'</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> Snippets</td><td class="cmd-desc">expandable templates. <strong>ultisnips</strong>, <strong>vim-snippet</strong>, <strong>luasnip</strong>.</td><td class="example">for&lt;Tab&gt; → for loop</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> Colorscheme</td><td class="cmd-desc">:colorscheme &lt;name&gt;. Try <strong>gruvbox</strong>, <strong>catppuccin</strong>, <strong>tokyonight</strong>.</td><td class="example">:colorscheme gruvbox</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Minimal <code>vim-plug</code> Configuration</h4></div>
+          <div class="code-block"><span class="c-comment">" ── ~/.vimrc ──────────────────────────────────────────</span>
+<span class="c-key">call</span> plug<span class="c-fn">#begin</span>(<span class="c-str">'~/.vim/plugged'</span>)
+<span class="c-fn">Plug</span> <span class="c-str">'preservim/nerdtree'</span>
+<span class="c-fn">Plug</span> <span class="c-str">'tpope/vim-fugitive'</span>
+<span class="c-fn">Plug</span> <span class="c-str">'tpope/vim-surround'</span>
+<span class="c-fn">Plug</span> <span class="c-str">'airblade/vim-gitgutter'</span>
+<span class="c-fn">Plug</span> <span class="c-str">'morhetz/gruvbox'</span>
+<span class="c-fn">Plug</span> <span class="c-str">'junegunn/fzf'</span>, { <span class="c-str">'dir'</span>: <span class="c-str">'~/.fzf'</span>, <span class="c-str">'do'</span>: <span class="c-str">'./install --all'</span> }
+<span class="c-fn">Plug</span> <span class="c-str">'junegunn/fzf.vim'</span>
+<span class="c-key">call</span> plug<span class="c-fn">#end</span>()
+
+<span class="c-cmd">:PlugInstall</span>   <span class="c-comment">" install plugins</span>
+<span class="c-cmd">:PlugUpdate</span>    <span class="c-comment">" update them</span>
+<span class="c-cmd">:PlugClean</span>     <span class="c-comment">" remove unlisted ones</span>
+</div>
+
+        </div></div>
+      </div>
+
+      <!-- Scripting & Automation -->
+      <div class="cat">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Scripting &amp; Automation</div>
+            <div class="cat-summary">Vimscript basics, functions, autocommands</div>
+          </div>
+          <span class="cat-cmd-count">~25 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Variables &amp; State</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:let</span></td><td class="cmd-desc">assign a variable.</td><td class="example">:let g:foo = 42</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:let g:...</span></td><td class="cmd-desc">global (survives files).</td><td class="example">:let g:user_name = "Eli"</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:let b:...</span></td><td class="cmd-desc">buffer-local.</td><td class="example">:let b:project = "vim-help"</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:let w:...</span></td><td class="cmd-desc">window-local.</td><td class="example">:let w:diff_on = 1</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:echo &amp;l:expandtab</span></td><td class="cmd-desc">read option as a var.</td><td class="example">:echo &amp;tw</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:echo expand("%:p")</span></td><td class="cmd-desc">call a Vim function.</td><td class="example">:echo strftime("%c")</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Functions</h4></div>
+          <div class="code-block"><span class="c-comment">" function name MUST start with a capital letter</span>
+<span class="c-key">function!</span> <span class="c-fn">Greet</span>(<span class="c-key">name</span>) abort
+  <span class="c-key">echo</span> <span class="c-str">"hello, "</span> . <span class="c-key">a:name</span> . <span class="c-str">"!"</span>
+<span class="c-key">endfunction</span>
+
+<span class="c-cmd">:call</span> <span class="c-fn">Greet</span>(<span class="c-str">"world"</span>)
+<span class="c-cmd">:call</span> <span class="c-fn">Greet</span>(<span class="c-fn">input</span>(<span class="c-str">"name? "</span>))
+
+<span class="c-comment">" s: script-local — only visible in this file</span>
+<span class="c-key">function!</span> <span class="c-fn">s:upper</span>() abort
+  <span class="c-key">let</span> <span class="c-key">l:line</span> = <span class="c-fn">getline</span>(<span class="c-str">'.'</span>)
+  <span class="c-key">call</span> <span class="c-fn">setline</span>(<span class="c-str">'.'</span>, <span class="c-fn">toupper</span>(<span class="c-key">l:line</span>))
+<span class="c-key">endfunction</span>
+</div>
+
+          <div class="sub-section"><h4>Control Flow</h4></div>
+          <div class="code-block"><span class="c-key">if</span> <span class="c-fn">exists</span>(<span class="c-str">"g:loaded_fugitive"</span>)
+  <span class="c-fn">nnoremap</span> &lt;silent&gt; &lt;leader&gt;gs :<span class="c-cmd">Git</span> status&lt;CR&gt;
+<span class="c-key">endif</span>
+
+<span class="c-key">let</span> <span class="c-key">count</span> = 0
+<span class="c-key">for</span> <span class="c-key">line</span> <span class="c-key">in</span> <span class="c-fn">range</span>(1, <span class="c-fn">line</span>(<span class="c-str">'$'</span>))
+  <span class="c-key">if</span> <span class="c-fn">getline</span>(<span class="c-key">line</span>) =~? <span class="c-str">'TODO'</span>
+    <span class="c-key">let</span> <span class="c-key">count</span> += 1
+  <span class="c-key">endif</span>
+<span class="c-key">endfor</span>
+<span class="c-cmd">echo</span> <span class="c-key">count</span> . <span class="c-str">" TODOs"</span>
+
+<span class="c-key">try</span>
+  <span class="c-cmd">read</span> !non-existent-binary
+<span class="c-key">catch</span> <span class="c-str">/E484/</span>
+  <span class="c-cmd">echo</span> <span class="c-str">"file not found"</span>
+<span class="c-key">endtry</span>
+</div>
+
+          <div class="sub-section"><h4>Autocommands</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:autocmd</span></td><td class="cmd-desc">define a response to an event.</td><td class="example">:autocmd BufWritePre *.md :call Strip()</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:augroup</span></td><td class="cmd-desc">group related autocommands — always paired with <code>:autocmd!</code> to clear.</td><td class="example">:augroup MYCFG | :autocmd! | :augroup END</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">BufRead</span> <span class="kbd">BufWritePost</span></td><td class="cmd-desc">read / write triggers.</td><td class="example">autocmd BufRead * set smartindent</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">BufEnter</span> <span class="kbd">BufLeave</span></td><td class="cmd-desc">focus-in / focus-out.</td><td class="example">set cursorline on focus, off on leave</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">InsertLeave</span> <span class="kbd">InsertEnter</span></td><td class="cmd-desc">enter / leave insert mode.</td><td class="example">set relativenumber on leave</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">FileType</span></td><td class="cmd-desc">filetype changed; ideal for per-language settings.</td><td class="example">FileType python setlocal expandtab</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">FileChangedShellPost</span></td><td class="cmd-desc">file changed on disk (Git pull etc.) — reload buffer.</td><td class="example">checktime</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Custom Commands</h4></div>
+          <div class="code-block"><span class="c-comment">" :Greet [name]</span>
+<span class="c-key">command!</span> -<span class="c-fn">nargs</span>=? <span class="c-cmd">Greet</span> <span class="c-fn">echo</span> <span class="c-str">"hello "</span> . (&lt;q-args&gt; ==? <span class="c-str">""</span> ? <span class="c-str">"stranger"</span> : &lt;q-args&gt;)
+
+<span class="c-comment">" :Strip — trim trailing whitespace</span>
+<span class="c-key">command!</span> <span class="c-cmd">Strip</span> <span class="c-fn">%s</span>/\<span class="c-fn">s</span>\+$//e
+
+<span class="c-comment">" :W → save silently with a confirmation</span>
+<span class="c-key">command!</span> -<span class="c-fn">bang</span> <span class="c-cmd">W</span> <span class="c-fn">write</span>
+</div>
+
+          <div class="note">
+            <strong>Tip:</strong> For new scripts, consider <strong>Lua</strong> (Neovim) or <strong>Python</strong> bindings over Vimscript.
+            Vimscript is fastest to <em>read</em> in legacy config, but slower to write once you outgrow basics.
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- Expert Workflows -->
+      <div class="cat">
+        <div class="cat-head" data-toggle>
+          <div class="cat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="cat-info">
+            <div class="cat-name">Expert Workflows</div>
+            <div class="cat-summary">Sessions, diff mode, external command integration</div>
+          </div>
+          <span class="cat-cmd-count">~25 cmds</span>
+          <svg class="cat-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="cat-body"><div class="cat-content">
+
+          <div class="sub-section"><h4>Sessions</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:mksession ~/session.vim</span></td><td class="cmd-desc">save all your windows, buffers, splits, cursor positions.</td><td class="example">:mks! alt session</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:source ~/session.vim</span></td><td class="cmd-desc">restore a saved session.</td><td class="example">:source Session.vim</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">vim -S ~/session.vim</span></td><td class="cmd-desc">launch Vim with a session pre-loaded.</td><td class="example">alias vimproj='vim -S'</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Diff Mode</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">vimdiff a b c</span></td><td class="cmd-desc">open two or three files in diffing windows.</td><td class="example">vimdiff old.js new.js</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:diffthis</span></td><td class="cmd-desc">turn on diff for the current window (after :vert diffsplit).</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">]c</span> <span class="kbd">[c</span></td><td class="cmd-desc">jump to next / previous diff hunk.</td><td class="example">3]c 3 hunks ahead</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">do</span> <span class="kbd">dp</span></td><td class="cmd-desc"><strong>d</strong>iff <strong>o</strong>bt = pull change from other window; <strong>dp</strong> = put to other window.</td><td class="example">do take theirs</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:diffupdate</span></td><td class="cmd-desc">refresh diff after edits.</td><td class="example">—</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Shell Integration</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:!{cmd}</span></td><td class="cmd-desc">run a shell command and <em>see</em> output (then press &lt;CR&gt; to return).</td><td class="example">:!ls -la</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:r !{cmd}</span></td><td class="cmd-desc">insert shell output <em>into buffer</em> at cursor.</td><td class="example">:r !date</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:{range}!{filter}</span></td><td class="cmd-desc">pipe range through an external program (in-place update).</td><td class="example">:%!python -m json.tool</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:w !{cmd}</span></td><td class="cmd-desc">pipe entire buffer as stdin to a command.</td><td class="example">:w !curl -F 'file=@-' https://paste.rs</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">&lt;C-z&gt;</span> or <span class="kbd">:shell</span></td><td class="cmd-desc">suspend Vim and drop to shell (use <code>fg</code> to return).</td><td class="example">quick test of regex</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-insert">I</span> <span class="kbd">:terminal</span></td><td class="cmd-desc">open a terminal in a split (Vim 8 / Neovim).</td><td class="example">:vert term</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Quickfix &amp; Location</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:make</span></td><td class="cmd-desc">run external make; populate the quickfix list.</td><td class="example">:make</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:copen</span> <span class="kbd">:cclose</span></td><td class="cmd-desc">open / close quickfix window.</td><td class="example">:copen</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">:cn</span> <span class="kbd">:cp</span></td><td class="cmd-desc">next / previous quickfix entry.</td><td class="example">:5cn 5 entries forward</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:vimgrep /pat/ **/*</span></td><td class="cmd-desc">internal grep; populates quickfix.</td><td class="example">:vim /TODO/j **/*.go</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:grep</span></td><td class="cmd-desc">external grep; populates quickfix.</td><td class="example">:grep -r TODO .</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-normal">N</span> <span class="kbd">:lopen</span> <span class="kbd">:ln</span> <span class="kbd">:lp</span></td><td class="cmd-desc">location list — like quickfix but per-window.</td><td class="example">:lgrep foo **/*.py</td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-section"><h4>Persistent State</h4></div>
+          <table class="cmd-table">
+            <thead><tr><th>Keys</th><th>Description</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:set undofile</span></td><td class="cmd-desc">turn on persistent undo (saves undo history to disk).</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:mksession</span></td><td class="cmd-desc">as above — backup the workspace.</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:wviminfo</span> <span class="kbd">:rviminfo</span></td><td class="cmd-desc">write / read viminfo (command history, registers, marks).</td><td class="example">—</td></tr>
+              <tr><td class="keystrokes"><span class="mode-pill mp-command">EX</span> <span class="kbd">:write! ~/backup.txt</span></td><td class="cmd-desc">force-snapshot the current buffer (even unchanged) to file.</td><td class="example">—</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            <strong>Pro workflow:</strong>
+            <ol style="margin-top:6px; padding-left:22px; color: var(--text-2); font-size: 14px;">
+              <li>Make some intentional edits — that hunk is the change.</li>
+              <li><span class="kbd">:w !git diff --no-index - &lt;(git show HEAD:&lt;cur-file&gt;)</span> — review against HEAD.</li>
+              <li><span class="kbd">:g/^$/d</span> — drop empty lines.</li>
+              <li><span class="kbd">:w</span> — done.</li>
+            </ol>
+          </div>
+
+        </div></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───────────── FOOTER ───────────── -->
+  <footer class="footer">
+    <p>
+      <span class="kbd">i</span> insert · <span class="kbd">&lt;Esc&gt;</span> normal · <span class="kbd">:</span> command-line · <span class="kbd">?</span> in trouble
+    </p>
+    <p style="margin-top: 8px; font-size: 12px;">
+      The single best way to learn Vim: <strong>don't add keybindings until the default ones hurt.</strong>
+      Configure Vim to match Vim — not Vim to match your editor.
+    </p>
+  </footer>
+
+</div>
+
+<script>
+  // Toggle a single category
+  document.querySelectorAll('[data-toggle]').forEach(function(head) {
+    head.addEventListener('click', function() {
+      head.parentElement.classList.toggle('open');
+    });
+  });
+
+  // Expand/collapse all within a level
+  document.querySelectorAll('.expand-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const targetId = btn.getAttribute('data-target');
+      const level = document.getElementById(targetId);
+      if (!level) return;
+      const cats = level.querySelectorAll('.cat');
+      const anyClosed = Array.from(cats).some(function(c) { return !c.classList.contains('open'); });
+      cats.forEach(function(c) {
+        if (anyClosed) c.classList.add('open');
+        else c.classList.remove('open');
+      });
+      btn.textContent = anyClosed ? 'collapse all' : 'expand all';
+    });
+  });
+</script>
+</body>
+</html>
